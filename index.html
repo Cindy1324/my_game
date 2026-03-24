@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>未记录·测试demo</title>
+  <style>
+    body {
+      background: #101012;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    #box {
+      max-width: 720px;
+      margin: auto;
+    }
+
+    #topbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .topbtn {
+      width: auto;
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 14px;
+      text-align: center;
+      background: #1a1a1c;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 10px;
+    }
+
+    #text {
+      white-space: pre-wrap;
+      line-height: 1.9;
+      margin-bottom: 20px;
+      font-size: 17px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      background: #1a1a1c;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 10px;
+      font-size: 16px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    button:active {
+      background: #333;
+    }
+
+    .ending-box {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid #444;
+      border-radius: 10px;
+    }
+
+    .ending-en {
+      opacity: 0.65;
+      margin-top: 4px;
+    }
+
+    hr {
+      margin: 22px 0;
+      border-color: #333;
+    }
+
+    .small {
+      opacity: 0.7;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div id="box">
+    <h1>未记录·测试demo</h1>
+
+    <div id="topbar">
+      <button id="saveBtn" class="topbtn">保存进度</button>
+      <button id="loadBtn" class="topbtn">读取进度</button>
+      <button id="clearBtn" class="topbtn">清除存档</button>
+    </div>
+
+    <div id="text"></div>
+    <div id="choices"></div>
+    <div id="endingArea"></div>
+
+    <hr>
+    <div style="opacity:.7;font-size:14px;">已解锁：</div>
+    <div id="unlock"></div>
+  </div>
+
+  <script>
+    const SAVE_KEY = "weijin_restore_unlock_v4";
+    const PROGRESS_KEY = "weijin_progress_v4";
+    const MANUAL_SAVE_KEY = "weijin_manual_save_v4";
+
+    let unlocked = JSON.parse(localStorage.getItem(SAVE_KEY) || "[]");
+
+    let progress = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "null") || {
+      cur: "start",
+      flags: {
+        trustPink: 0,
+        trustOrange: 0,
+        trustHuang: 0
+      }
+    };
+
+    const flags = progress.flags || {
+      trustPink: 0,
+      trustOrange: 0,
+      trustHuang: 0
+    };
+
+    let cur = progress.cur || "start";
+
+    const story = {
+      start: {
+        text:
+`你们刚打完那只怪。
+
+石门慢慢打开。
+
+橙走在前面，说了一句：“应该结束了。”
+
+黄推了推眼镜，笑着说：“比想象中简单啊。”
+
+（这种话一般都不太吉利。）
+
+（而且通常下一秒就会出事。）
+
+你看向粉。
+
+她没说话，一直盯着那只怪的尸体。
+
+……有点不对劲。
+
+（这种“有点”，通常都不止一点。）`,
+        choices: [
+          { label: "盯着粉看看", next: "pink_check" },
+          { label: "跟着走，别想太多", next: "normal_extend" },
+          { label: "去看那只怪", next: "boss_check" }
+        ]
+      },
+
+      pink_check: {
+        text:
+`粉突然开口：
+
+“我们……真的结束了吗？”
+
+她的声音不大。
+
+但你莫名听得很清楚。
+
+（不是在问你。）
+
+（更像是在确认什么。）
+
+你突然意识到——
+
+她在等你的回答。`,
+        choices: [
+          { label: "“结束了啊。”", next: "ending_E01" },
+          { label: "“你这话什么意思？”", next: "loop_start" },
+          { label: "先动手", next: "ending_E02" },
+          { label: "装没听懂", next: "ending_E06" }
+        ]
+      },
+
+      loop_start: {
+        text:
+`你刚开口。
+
+粉的动作比你快。
+
+——
+
+你甚至没看清她是怎么出手的。
+
+一瞬间。
+
+世界安静下来。
+
+……
+
+然后重新开始。
+
+“错误已回收。”
+“记录重置。”
+
+（好消息：我还活着。）
+
+（坏消息：活得有点太重复了。）
+
+（更坏的消息：她手是真快。）`,
+        next: "start_after_loop"
+      },
+
+      start_after_loop: {
+        text:
+`你站回原地。
+
+石门还是开着。
+
+橙、黄、粉的位置都和刚才一样。
+
+一切都没变。
+
+……但你知道，不一样了。`,
+        choices: [
+          { label: "找粉单聊", next: "talk_pink" },
+          { label: "全告诉大家", next: "ending_E03" },
+          { label: "正常推进", next: "normal_extend" },
+          { label: "检查那只怪", next: "boss_check" },
+          { label: "先找橙", next: "orange_probe" }
+        ]
+      },
+
+      orange_probe: {
+        text:
+`你走向橙。
+
+他像是早就知道你会过来。
+
+“你这次比之前快。”
+
+（这句话有两个问题。）
+
+（第一，他什么意思。）
+
+（第二，什么叫‘这次’。）
+
+（第三，其实我已经不太想追问了。）`,
+        choices: [
+          {
+            label: "你也记得？",
+            next: "orange_hint",
+            effect: () => { flags.trustOrange += 1; }
+          },
+          { label: "你在说什么", next: "normal_extend" },
+          { label: "不问了，去找粉", next: "talk_pink" },
+          { label: "谁都不跟，自己走", next: "ending_E22" }
+        ]
+      },
+
+      orange_hint: {
+        text:
+`橙沉默了一会儿。
+
+“我记得一部分。”
+
+“但每次都不够。”
+
+“如果你已经开始问了，说明这轮又走到这里了。”
+
+……
+
+（很好。）
+
+（半懂不懂是最危险的状态。）
+
+（尤其是对我这种本来就不太懂的。）`,
+        choices: [
+          { label: "继续追问", next: "orange_deep" },
+          { label: "先去确认怪物", next: "boss_check" },
+          { label: "先找粉", next: "talk_pink" }
+        ]
+      },
+
+      orange_deep: {
+        text:
+`“有一条路线。”
+
+“不会出问题。”
+
+他说得很确定。
+
+太确定了。
+
+确定得像这条路不是给你选的。
+
+……
+
+你看着他。
+
+他也看着你。
+
+谁都没先移开视线。
+
+（很烦。）
+
+（他那种“我知道但我不全说”的样子真的很烦。）`,
+        choices: [
+          { label: "跟他走那条稳的", next: "orange_safe_route" },
+          { label: "顺着他的思路自己推", next: "ending_E15" },
+          { label: "我自己来", next: "ending_E16" },
+          { label: "不信，回主线", next: "partial_truth" }
+        ]
+      },
+
+      orange_safe_route: {
+        text:
+`你跟着橙走。
+
+这条路很干净。
+
+太干净了。
+
+没有岔路。
+
+没有杂音。
+
+甚至没有那种“马上要出事”的预感。
+
+……
+
+你开始放松。
+
+（这不正常。）
+
+（但也挺舒服。）
+
+又走了一段。
+
+前面开始有光。
+
+很亮。
+
+亮得像出口。
+
+亮得像好结局。
+
+（通常这两样东西不会同时出现。）`,
+        choices: [
+          { label: "走出去", next: "ending_E18" },
+          { label: "停一下，不出去", next: "ending_E26" }
+        ]
+      },
+
+      talk_pink: {
+        text:
+`你压低声音：
+
+“粉，我们谈谈。”
+
+她看了你一眼。
+
+没有惊讶。
+
+“你记得，对吗？”
+
+（她已经确认了。）
+
+（你现在说谎也没什么意义。）`,
+        choices: [
+          {
+            label: "承认",
+            next: "pink_truth",
+            effect: () => { flags.trustPink += 1; }
+          },
+          { label: "装傻", next: "ending_E06" },
+          { label: "反问她：你也记得？", next: "pink_truth_alt" }
+        ]
+      },
+
+      pink_truth: {
+        text:
+`你点头。
+
+粉垂下眼，像是终于确认了什么。
+
+“那就快一点。”
+
+“我每一轮都会先动手。”
+
+“不是因为我想这么做。”
+
+“是因为如果不这样，事情会更糟。”
+
+（她说得很平静。）
+
+（平静得像已经重复过太多次。）
+
+（何意味。）`,
+        choices: [
+          {
+            label: "那我们可以一起改结局",
+            next: "pink_follow",
+            effect: () => { flags.trustPink += 1; }
+          },
+          { label: "你这样只是在锁死结局", next: "pink_lock" },
+          { label: "还是先杀了你吧", next: "ending_E02" }
+        ]
+      },
+
+      pink_truth_alt: {
+        text:
+`你低声问：
+
+“你也记得？”
+
+粉看着你，沉默了几秒。
+
+“……记得的人，不止我一个。”
+
+“但每次最先动手的人，都是我。”
+
+（这话听起来一点也不让人安心。）
+
+（甚至还有点像工伤总结。）`,
+        choices: [
+          { label: "继续问下去", next: "pink_follow" },
+          { label: "你到底在隐瞒什么", next: "pink_lock" }
+        ]
+      },
+
+      pink_follow: {
+        text:
+`粉没再说话。
+
+她转身往旁边那条窄路走去。
+
+那不是通往石门的方向。
+
+（正常队友不会在这种时候带路跑偏。）
+
+（但她现在看起来比“正常流程”更像答案。）
+
+（或者更像麻烦本身。）`,
+        choices: [
+          { label: "跟上她", next: "pink_room" },
+          { label: "叫住她，先把话说清", next: "pink_stop" },
+          { label: "暂时不跟，先去看怪物", next: "boss_check" }
+        ]
+      },
+
+      pink_stop: {
+        text:
+`你拉住她。
+
+“先说清楚。”
+
+粉回头。
+
+“来不及。”
+
+“你想知道我为什么每次都先动手——”
+
+“那就自己看。”
+
+她甩开你的手，目光落向遗迹更深处。
+
+（她生气了。）
+
+（或者说，她早就没有耐心了。）
+
+（她甚至开始鸟都不鸟你。）`,
+        choices: [
+          { label: "还是跟上她", next: "pink_room" },
+          { label: "不跟，去查怪物", next: "boss_check" },
+          { label: "继续逼问", next: "ending_E06" }
+        ]
+      },
+
+      pink_lock: {
+        text:
+`你盯着她：
+
+“你这样只是在锁死结局。”
+
+粉的表情终于有了一点变化。
+
+“也许吧。”
+
+“但至少那样，死法还在我能控制的范围里。”
+
+（这个回答非常糟糕。）
+
+（更糟的是，你居然能听懂她。）
+
+（说明我现在的精神状态也不怎么样。）`,
+        choices: [
+          { label: "继续听她说", next: "pink_room" },
+          { label: "不接受，去查怪物", next: "boss_check" },
+          { label: "那我来试试别的方法", next: "partial_truth_hint" }
+        ]
+      },
+
+      partial_truth_hint: {
+        text:
+`你后退半步。
+
+“那我自己确认。”
+
+粉没有拦你。
+
+“随你。”
+
+“反正你最后还是会回到这里。”
+
+（这个人说话真不吉利。）
+
+（但她目前命中率有点高，烦。）`,
+        next: "boss_check"
+      },
+
+      pink_room: {
+        text:
+`她带你拐进一条狭窄的侧室。
+
+里面很暗。
+
+墙上全是刮痕。
+
+有些像刀划的。
+
+有些……像指甲。
+
+最里面的石壁上，刻着一句几乎被磨平的话：
+
+“不要相信通关。”
+
+你心里一沉。
+
+（这地方看起来一点也不像景区。）
+
+（差评。）
+
+（而且投诉电话大概也打不通。）`,
+        choices: [
+          { label: "问这是谁留下的", next: "pink_room_q1" },
+          { label: "问她和那只怪是什么关系", next: "pink_room_q2" },
+          { label: "摸一下那些划痕", next: "pink_room_memory" }
+        ]
+      },
+
+      pink_room_q1: {
+        text:
+`“谁留下的？”
+
+粉看着那面墙。
+
+“可能是我们。”
+
+“也可能是和我们一样的人。”
+
+“反正都失败了。”
+
+（她说失败的时候，语气太熟练了。）
+
+（熟练得像已经写过复盘报告。）`,
+        choices: [
+          { label: "继续问怪物", next: "pink_room_q2" },
+          { label: "摸一下划痕", next: "pink_room_memory" },
+          { label: "回去查那只怪", next: "boss_check" }
+        ]
+      },
+
+      pink_room_q2: {
+        text:
+`你问：
+
+“你和那只怪，到底是什么关系？”
+
+粉沉默了很久。
+
+“它不是‘怪物’。”
+
+“至少最开始不是。”
+
+“它只是失败后留下来的东西。”
+
+你忽然意识到她一直在刻意回避某个答案。
+
+（很好。）
+
+（现在轮到我不想听懂了。）
+
+（这东西一旦听懂，感觉就要加班。）`,
+        choices: [
+          { label: "你见过它原来的样子？", next: "pink_room_q3" },
+          { label: "摸一下划痕", next: "pink_room_memory" },
+          { label: "先回去", next: "boss_check" }
+        ]
+      },
+
+      pink_room_q3: {
+        text:
+`粉闭了闭眼。
+
+“见过。”
+
+“而且不止一次。”
+
+“所以我才知道——”
+
+“如果我们什么都不做，最后会变成什么。”
+
+这句话之后，她没有再解释。
+
+但你已经知道，她不是在吓你。
+
+（她只是比你更早见过最坏的结果。）
+
+（而我看起来像是排着队的那个。）`,
+        choices: [
+          {
+            label: "这次我帮你",
+            next: "pink_commit",
+            effect: () => { flags.trustPink += 1; }
+          },
+          { label: "这次我不信你", next: "pink_break" },
+          { label: "我先去确认怪物", next: "boss_check" }
+        ]
+      },
+
+      pink_room_memory: {
+        text:
+`你伸手碰上那些划痕。
+
+一瞬间。
+
+冰冷的触感顺着指尖往上爬。
+
+你看见一闪而过的画面——
+
+同一间侧室。
+
+同一面墙。
+
+不同的你。
+
+不同的死法。
+
+其中一次，粉站在门口，看着你说：
+
+“这次也不行。”
+
+你猛地收回手。
+
+（好消息：你看到东西了。）
+
+（坏消息：一点都不想看第二次。）
+
+（更坏的消息：你还有点想再看一次，何意味。）`,
+        choices: [
+          { label: "告诉粉你看见了", next: "pink_commit" },
+          { label: "不告诉她，回去查怪物", next: "boss_check" },
+          { label: "还是不信她", next: "pink_break" },
+          { label: "再看一次", next: "ending_E25" }
+        ]
+      },
+
+      pink_commit: {
+        text:
+`你看着粉。
+
+“这次我帮你。”
+
+粉没有立刻回话。
+
+她只是很轻地呼出一口气。
+
+“……别死得太早。”
+
+（这大概已经算她这辈子最温柔的一句话了。）
+
+（虽然内容依旧不太吉利。）`,
+        choices: [
+          { label: "和她一起回去", next: "boss_check_helped" },
+          { label: "再问一个问题", next: "pink_last_question" }
+        ]
+      },
+
+      pink_last_question: {
+        text:
+`你叫住她。
+
+“最后一个问题。”
+
+“如果这次还是失败呢？”
+
+粉停了一下。
+
+“那就再来一次。”
+
+“直到有一轮，不需要我先动手。”
+
+（她说得像在谈天气。）
+
+（我听得像在签遗书。）
+
+（这下真没招了。）`,
+        choices: [
+          { label: "回去", next: "boss_check_helped" },
+          { label: "我改主意了", next: "pink_break" }
+        ]
+      },
+
+      pink_break: {
+        text:
+`你后退半步。
+
+“我不信你。”
+
+粉看着你，没有生气。
+
+只是很轻地说：
+
+“你以前也这么说过。”
+
+“然后你死了。”
+
+（谢谢提醒。）
+
+（一点都没有被安慰到。）`,
+        choices: [
+          { label: "回去查怪物", next: "boss_check" },
+          { label: "继续正常推进", next: "normal_extend" },
+          { label: "当场翻脸", next: "ending_E02" }
+        ]
+      },
+
+      boss_check_helped: {
+        text:
+`你和粉一起回到那只怪面前。
+
+这一次，她站得离你很近。
+
+近到你能听见她呼吸。
+
+（压力更大了。）
+
+（谢谢，并没有被安慰到。）
+
+（这就是所谓并肩作战吗，感觉更像共同加班。）`,
+        choices: [
+          { label: "伸手碰一下", next: "memory_first_helped" },
+          { label: "让粉先来", next: "pink_take_lead" },
+          { label: "先去找橙", next: "steady_yellow" }
+        ]
+      },
+
+      pink_take_lead: {
+        text:
+`粉把手按在那纹路上。
+
+她脸色一下白了。
+
+但没有松手。
+
+“原来是这里……”
+
+她像是确认了什么。
+
+然后抬眼看你。
+
+“现在你来。”
+
+（这四个字没有一点鼓励效果。）
+
+（甚至像在点名。）`,
+        choices: [
+          { label: "接上去", next: "memory_first_helped" },
+          { label: "不接", next: "ending_E06" }
+        ]
+      },
+
+      memory_first_helped: {
+        text:
+`你刚碰到。
+
+画面爆开。
+
+水。
+
+石门。
+
+那面写着“不要相信通关”的墙。
+
+还有粉——
+
+她不是站在你对面。
+
+而是一直站在你前面。
+
+像在替你挡什么。
+
+……
+
+你猛地回神。
+
+粉低声说：
+
+“现在你知道我为什么先动手了。”
+
+（知道是知道了。）
+
+（心情并没有好起来。）`,
+        choices: [
+          { label: "我信你，但还不够", next: "partial_truth" },
+          { label: "这次别先动手", next: "partial_truth" },
+          { label: "我还是觉得你有问题", next: "pink_break" }
+        ]
+      },
+
+      normal_extend: {
+        text:
+`你决定先走。
+
+不多想。
+
+……
+
+一开始很顺。
+
+太顺了。
+
+顺到你甚至有点不放心。
+
+（人类本能：越顺越慌。）
+
+你又走了一段。
+
+前面还是路。
+
+但你突然不太确定，
+
+这段是不是刚刚走过。
+
+……
+
+你停了一下。
+
+没想明白。`,
+        choices: [
+          { label: "继续走", next: "ending_E19" },
+          { label: "回去找他们", next: "normal" },
+          { label: "顺手回头看一眼", next: "ending_E20" }
+        ]
+      },
+
+      normal: {
+        text:
+`你没多想，跟着大家往里走。
+
+一路顺利。
+
+机关也开了。
+
+黄甚至还在研究机关结构，说回去可以复刻一个。
+
+（很好，已经开始考虑周边产品了。）
+
+……
+
+你回头。
+
+人没了。
+
+（很好，复刻不了了。）`,
+        next: "ending_E04"
+      },
+
+      boss_check: {
+        text:
+`你走近那只怪。
+
+它已经倒下了。
+
+但你发现——
+
+它胸口的纹路还在动。
+
+像心跳一样。
+
+（这东西不该动的。）
+
+（但它在。）
+
+（而且动得还挺有自信。）`,
+        choices: [
+          { label: "伸手碰一下", next: "memory_first" },
+          { label: "再多碰一次，看看会不会看到更多", next: "ending_E21" },
+          { label: "先站着观察一会儿", next: "ending_E23" },
+          { label: "算了，有点怪", next: "ending_E04" }
+        ]
+      },
+
+      memory_first: {
+        text:
+`你刚碰到。
+
+画面瞬间炸开。
+
+水。
+
+黑得看不见底的水。
+
+你们四个人。
+
+有人在挣扎。
+
+有人在喊。
+
+你站在岸上。
+
+你能动。
+
+但你没有动。
+
+……
+
+（你当时是可以救人的。）
+
+（但你没救。）
+
+（何意味啊。）`,
+        choices: [
+          { label: "只说一部分", next: "partial_truth" },
+          { label: "全说出来", next: "ending_E03" },
+          { label: "谁都不说，再碰一次", next: "ending_E21" }
+        ]
+      },
+
+      partial_truth: {
+        text:
+`你压低声音，把看到的东西说了一部分。
+
+粉和橙都没否认。
+
+黄还没完全听懂，但明显开始紧张了。
+
+气氛一下变了。
+
+这地方……不太对。
+
+（虽然没人说出来。）
+
+（但大家都在等谁先开口。）
+
+（气氛已经糟得很具体了。）`,
+        choices: [
+          {
+            label: "先稳住黄",
+            next: "steady_yellow",
+            effect: () => { flags.trustHuang += 1; }
+          },
+          { label: "不管黄，直接继续追真相", next: "ending_E07" },
+          { label: "先跑再说", next: "ending_E11" }
+        ]
+      },
+
+      steady_yellow: {
+        text:
+`你盯着黄：
+
+“先别问那么多，跟着我。”
+
+黄看了你一会儿，还是点了头。
+
+（他其实没完全听懂。）
+
+（但他选择先信你。）
+
+粉站在怪物尸体旁边。
+
+橙盯着你，像在等你做决定。
+
+（行，压力现在是共享的。）`,
+        choices: [
+          { label: "拉橙一起进来", next: "orange_join" },
+          { label: "问黄他刚刚到底想到什么", next: "yellow_extra" },
+          { label: "让粉单独去碰那个纹路", next: "ending_E07" },
+          { label: "现在就撤", next: "ending_E11" }
+        ]
+      },
+
+      yellow_extra: {
+        text:
+`黄看着你。
+
+“我刚刚……好像见过这里。”
+
+他说完自己都愣了一下。
+
+“不是像。”
+
+“是见过。”
+
+……
+
+你盯着他。
+
+他盯着墙。
+
+谁都没先说下一句。
+
+（这种时候一般都该有个聪明人出来总结一下。）
+
+（可惜现场没有。）`,
+        choices: [
+          { label: "让他说下去", next: "yellow_reverse" },
+          { label: "别想了，先走主线", next: "orange_join" },
+          { label: "他说什么都对", next: "ending_E14" }
+        ]
+      },
+
+      yellow_reverse: {
+        text:
+`黄压低声音。
+
+“如果这里真的重复过……”
+
+“那反方向呢？”
+
+他说完看着你，明显很期待。
+
+像是在等你夸他。
+
+……
+
+你没夸。
+
+但你得承认，这回听着不算完全没道理。
+
+（只是“有道理”和“会死”通常不冲突。）`,
+        choices: [
+          { label: "跟他试试反方向", next: "ending_E13" },
+          { label: "让他说完别的", next: "ending_E24" },
+          { label: "先记住这句，回主线", next: "orange_join" }
+        ]
+      },
+
+      orange_join: {
+        text:
+`你看着橙：
+
+“你也记得，对吧？”
+
+他沉默了一会儿，终于点头。
+
+“你这次走得比之前更远。”
+
+（他早就知道。）
+
+（三个人第一次站到了一边。）
+
+（气氛还是一样烂，但至少人数上来了。）`,
+        choices: [
+          { label: "和粉一起连接真相", next: "full_truth" },
+          { label: "还是分开行动，先逃出去", next: "ending_E11" },
+          { label: "让粉一个人承受", next: "ending_E07" }
+        ]
+      },
+
+      full_truth: {
+        text:
+`你把手按了上去。
+
+这一次，画面没有立刻断开。
+
+你看见了最初那一轮。
+
+你们什么都没做错。
+
+通关、前进、进入下一层。
+
+然后——
+
+清除开始。
+
+第一个死的是黄。
+
+橙试图反抗，失败了。
+
+你站在一旁。
+
+没动。
+
+粉在你身边说：
+
+“那下一次，我来。”
+
+（问题从一开始就在这里。）
+
+（你现在终于看懂了。）
+
+（真不想在这种时候开窍。）`,
+        choices: [
+          { label: "继续站着，不动", next: "ending_E10" },
+          { label: "切断连接，拒绝继续", next: "ending_E09" },
+          { label: "我来接替粉", next: "ending_E08" },
+          { label: "那下一个是谁？", next: "ending_E17" },
+          { label: "把所有人都拉回来，一起反抗", next: "ending_E12" }
+        ]
+      },
+
+      ending_E01: {
+        text:
+`粉看了你一眼。
+
+下一秒，她动手了。
+
+你什么都没来得及做。`,
+        ending: { code: "E01", cn: "开始", en: "BEGIN" }
+      },
+
+      ending_E02: {
+        text:
+`你抢先出了手。
+
+你以为这样就能结束。
+
+可第二天，橙站在你床边，只说了一句：
+
+“你做错了。”
+
+然后一刀捅了下来。
+
+你做出了最快的选择。
+
+也是最简单的选择。
+
+……
+
+所以你死得最早。`,
+        ending: { code: "E02", cn: "莽夫", en: "BRUTE" }
+      },
+
+      ending_E03: {
+        text:
+`你把事情全说了。
+
+空气一下就变了。
+
+橙沉默了很久。
+
+然后——
+
+一切开始失控。
+
+没人能收住场。`,
+        ending: { code: "E03", cn: "崩溃链", en: "CASCADE" }
+      },
+
+      ending_E04: {
+        text:
+`你什么都没做。
+
+只是顺着流程走。
+
+顺着他们走。
+
+顺着“应该发生的事”继续往前。
+
+……
+
+石门关闭。
+
+空气突然安静得过分。
+
+然后——
+
+上方传来机械运转的声音。
+
+你抬头。
+
+看见一排黑色结构缓缓降下。
+
+像门。
+
+又不像门。
+
+更像……铡刀。
+
+（你来不及反应。）
+
+（也没有人提醒你。）
+
+唰——————
+
+世界被切开。
+
+一瞬间。
+
+没有痛觉。
+
+只有“结束”的感觉。
+
+……
+
+“异常未干预。”
+
+“执行默认清除。”
+
+这是针对你一个人的审判。`,
+        ending: { code: "E04", cn: "袖手旁观", en: "BYSTANDER" }
+      },
+
+      ending_E05: {
+        text:
+`你想看得更多。
+
+可那些画面一下全灌了进来。
+
+水、声音、你自己——
+
+你还没来得及整理。
+
+系统已经替你结束了思考。
+
+（完全没给你反应时间。）
+
+（信息量太大也是会出人命的。）`,
+        ending: { code: "E05", cn: "过载", en: "OVERLOAD" }
+      },
+
+      ending_E06: {
+        text:
+`粉盯着你看了几秒。
+
+“……还是这样。”
+
+她没再和你多说。
+
+你错过了唯一一次能和她站到一起的机会。`,
+        ending: { code: "E06", cn: "失信", en: "BREACH" }
+      },
+
+      ending_E07: {
+        text:
+`你们已经太接近那个东西了。
+
+空间开始扭曲。
+
+墙壁裂开。
+
+那个声音第一次清清楚楚地响起来：
+
+“异常。”
+
+“准备清除。”
+
+（没有情绪。）
+
+（也没有犹豫。）
+
+就像——
+
+删掉一个不需要的东西。`,
+        ending: { code: "E07", cn: "被清除", en: "PURGED" }
+      },
+
+      ending_E08: {
+        text:
+`你终于明白粉为什么一次次先动手。
+
+于是你接过了她的位置。
+
+下一轮开始时，不再是她说“这一次我来”。
+
+而是你。`,
+        ending: { code: "E08", cn: "接替", en: "SUCCESSOR" }
+      },
+
+      ending_E09: {
+        text:
+`你把手硬生生抽了回来。
+
+你知道了真相。
+
+可你不想再继续被卷进去。
+
+下一秒，那个声音响起：
+
+“ACCESS DENIED.”`,
+        ending: { code: "E09", cn: "拒绝访问", en: "ACCESS DENIED" }
+      },
+
+      ending_E10: {
+        text:
+`你什么都知道了。
+
+你也知道，那个一直站着不动的人，就是你。
+
+可到了最后，你还是没有动。`,
+        ending: { code: "E10", cn: "局外人", en: "OUTSIDER" }
+      },
+
+      ending_E11: {
+        text:
+`你不再管这些。
+
+直接冲向出口。
+
+橙看了你一眼。
+
+然后推了你一把。
+
+你活下来了。
+
+但你知道——
+
+这还没完。`,
+        ending: { code: "E11", cn: "继续", en: "CONTINUE" }
+      },
+
+      ending_E12: {
+        text:
+`你没有再去分谁该做什么。
+
+你只是把所有人都拉了回来。
+
+“别按它的规则来了。”
+
+那一刻——
+
+一切停住了。`,
+        ending: { code: "E12", cn: "未被记录之人", en: "UNRECORDED" }
+      },
+
+      ending_E13: {
+        text:
+`你跟着黄走了反方向。
+
+一开始确实更顺。
+
+没有杂音。
+
+也没有那些看不懂的提示。
+
+……
+
+“我就说吧。”
+
+黄刚说完这句。
+
+脚下突然空了一块。
+
+他整个人往下掉。
+
+你下意识伸手。
+
+没拉住。
+
+——
+
+你站在那里，往下看。
+
+什么都看不到。
+
+……
+
+你忽然意识到。
+
+你不是第一次站在这个位置。
+
+只是你这次记住了。`,
+        ending: { code: "E13", cn: "虚空路径", en: "VOID PATH" }
+      },
+
+      ending_E14: {
+        text:
+`你什么都没再判断。
+
+黄说什么，你就信什么。
+
+一开始没问题。
+
+甚至比之前顺。
+
+……
+
+你开始放松。
+
+“你看，我就说——”
+
+他说到一半，自己停住了。
+
+前面没有路。
+
+不是断了。
+
+是根本没有。
+
+……
+
+你看着他。
+
+他看着前面。
+
+你们都很安静。
+
+（盲信这个东西，通常会带人走进墙里。）
+
+（这次只是走进了更空的地方。）`,
+        ending: { code: "E14", cn: "盲信", en: "BLIND TRUST" }
+      },
+
+      ending_E15: {
+        text:
+`你顺着橙的话往下推。
+
+逻辑很完整。
+
+路线也很合理。
+
+……
+
+合理到你开始相信它。
+
+你一步一步走下去。
+
+走得很稳。
+
+——
+
+直到最后一步。
+
+你停住了。
+
+不是因为危险。
+
+是因为前面什么都没有。
+
+……
+
+你这才意识到。
+
+你不是找到真相了。
+
+你只是把错误想通了。`,
+        ending: { code: "E15", cn: "虚假的真相", en: "FALSE TRUTH" }
+      },
+
+      ending_E16: {
+        text:
+`你没跟任何人的判断走。
+
+“我自己来。”
+
+你说。
+
+听上去挺有气势。
+
+你自己都差点信了。
+
+……
+
+第一步没问题。
+
+第二步也没问题。
+
+第三步——
+
+没了。
+
+不是塌了。
+
+是从一开始就不存在。
+
+……
+
+你掉下去的那一瞬间才明白。
+
+有些路不是难走。
+
+是根本不给你走。`,
+        ending: { code: "E16", cn: "自以为是", en: "SELF-ASSURED" }
+      },
+
+      ending_E17: {
+        text:
+`“那下一个是谁？”
+
+你问。
+
+没人回答。
+
+……
+
+粉看了你一眼。
+
+眼神很短。
+
+但你看懂了。
+
+——
+
+“这次我不先动。”
+
+她说。
+
+你愣了一下。
+
+她却没再看你。
+
+……
+
+你这才意识到。
+
+她说的不是现在。
+
+（恭喜。）
+
+（轮到你了。）`,
+        ending: { code: "E17", cn: "下一个", en: "YOU ARE NEXT" }
+      },
+
+      ending_E18: {
+        text:
+`你跟着这条路线走。
+
+一切都很顺。
+
+太顺了。
+
+没有争执。
+
+没有人消失。
+
+甚至连那些“异常”，都没再出现。
+
+……
+
+你开始放松。
+
+第一次。
+
+真的觉得要结束了。
+
+——
+
+“到了。”
+
+前面是出口。
+
+光很亮。
+
+你几乎没有犹豫。
+
+走了出去。
+
+……
+
+什么都没有。
+
+不是空房间。
+
+不是下一层。
+
+是——
+
+没有。
+
+连“空间”都不太像。
+
+你站在那里。
+
+往回看。
+
+来时的路也不见了。
+
+——
+
+你忽然意识到。
+
+你不是走出来了。
+
+你是被带离开了。
+
+（恭喜。）
+
+（你成功避开了所有问题。）`,
+        ending: { code: "E18", cn: "离开", en: "LEAVE" }
+      },
+
+      ending_E19: {
+        text:
+`你决定只走最正常的路线。
+
+不碰。
+
+不问。
+
+不改变。
+
+……
+
+一路都很顺。
+
+顺到你甚至开始觉得，
+
+之前那些不对劲只是自己想太多。
+
+——
+
+你走到尽头。
+
+这里像出口。
+
+像安全。
+
+像结束。
+
+……
+
+就是不像真的。
+
+你站在那里很久。
+
+久到连你自己都开始怀疑，
+
+是不是从一开始就走错了世界。`,
+        ending: { code: "E19", cn: "假世界", en: "FALSE WORLD" }
+      },
+
+      ending_E20: {
+        text:
+`你走到一半。
+
+回头看了一眼。
+
+只是习惯。
+
+……
+
+后面没人。
+
+这点没问题。
+
+——
+
+问题是。
+
+前面的人，也不见了。
+
+你站在原地。
+
+一时间不知道自己该往哪边走。
+
+（所以说。）
+
+（有些时候最好别回头。）`,
+        ending: { code: "E20", cn: "不要回头", en: "DON'T LOOK BACK" }
+      },
+
+      ending_E21: {
+        text:
+`你多碰了一次。
+
+你本来只是想确认一下。
+
+（确认这种行为本身没错。）
+
+（错的是确认两次。）
+
+——
+
+这一次。
+
+它回应了。
+
+不是你想要的那种回应。
+
+你甚至没来得及收手。
+
+视线就断掉了。
+
+……
+
+（结论：好奇心确实会害死猫。）
+
+（而你刚刚表现得挺像。）`,
+        ending: { code: "E21", cn: "贪心", en: "GREED" }
+      },
+
+      ending_E22: {
+        text:
+`你谁都没跟。
+
+也谁都没信。
+
+你想自己走。
+
+想自己判断。
+
+想自己搞明白。
+
+……
+
+一开始没问题。
+
+甚至安静得过分。
+
+你走了一段。
+
+又走了一段。
+
+再回头。
+
+什么都没有。
+
+……
+
+人没了。
+
+路也没了。
+
+连你刚才留下的痕迹都没了。
+
+（这不是自由。）
+
+（这是被直接扔出局。）`,
+        ending: { code: "E22", cn: "被遗弃", en: "ABANDONED" }
+      },
+
+      ending_E23: {
+        text:
+`你停住了。
+
+没碰。
+
+没问。
+
+也没多想。
+
+……
+
+一切正常。
+
+顺利到有点不真实。
+
+你甚至开始觉得，
+
+刚才那些可能只是错觉。
+
+——
+
+然后结束了。
+
+很干脆。
+
+（你什么都没做。）
+
+（所以什么都不会改变。）
+
+（结局早就写好了。）`,
+        ending: { code: "E23", cn: "结局已定", en: "ALREADY SET" }
+      },
+
+      ending_E24: {
+        text:
+`你让他说下去。
+
+他说了一半。
+
+停住了。
+
+……
+
+你等了一会儿。
+
+他还是没说完。
+
+你忽然意识到。
+
+他不是不想说。
+
+是想不起来了。
+
+（你刚才好像也有点类似。）
+
+（这地方连脑子都能吃一点。）`,
+        ending: { code: "E24", cn: "遗忘", en: "FORGOTTEN" }
+      },
+
+      ending_E25: {
+        text:
+`你又看了一次。
+
+明知道不该看。
+
+你还是看了。
+
+……
+
+画面没立刻炸开。
+
+反而更清楚了。
+
+清楚到你几乎能认出来——
+
+那不是“别人”。
+
+那是你。
+
+更早之前的你。
+
+……
+
+你猛地收回手。
+
+这一次。
+
+你终于明白了。
+
+你现在走的这条路。
+
+在这之前，已经走过。`,
+        ending: { code: "E25", cn: "在这之前", en: "BEFORE THIS" }
+      },
+
+      ending_E26: {
+        text:
+`你停在光前面。
+
+没有出去。
+
+也没有回头。
+
+就站在那里。
+
+……
+
+很快。
+
+连“前面有光”这件事都开始变得不确定。
+
+四周一点一点空下去。
+
+不是黑。
+
+是空。
+
+……
+
+你这才发现。
+
+这里不是出口。
+
+也不是房间。
+
+这里只剩下你还站着。
+
+（空白这种东西。）
+
+（看久了还挺有压迫感。）`,
+        ending: { code: "E26", cn: "空白", en: "EMPTY" }
+      }
+    };
+
+    function saveEnding(ending) {
+      if (!unlocked.find(e => e.code === ending.code)) {
+        unlocked.push(ending);
+        localStorage.setItem(SAVE_KEY, JSON.stringify(unlocked));
+      }
+    }
+
+    function saveProgress() {
+      progress.cur = cur;
+      progress.flags = flags;
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    }
+
+    function manualSave() {
+      const data = {
+        cur,
+        unlocked,
+        flags
+      };
+      localStorage.setItem(MANUAL_SAVE_KEY, JSON.stringify(data));
+      alert("已保存进度");
+    }
+
+    function manualLoad() {
+      const data = JSON.parse(localStorage.getItem(MANUAL_SAVE_KEY) || "null");
+      if (!data) {
+        alert("没有手动存档");
+        return;
+      }
+      cur = data.cur || "start";
+      unlocked = data.unlocked || [];
+      if (data.flags) {
+        flags.trustPink = data.flags.trustPink || 0;
+        flags.trustOrange = data.flags.trustOrange || 0;
+        flags.trustHuang = data.flags.trustHuang || 0;
+      }
+      localStorage.setItem(SAVE_KEY, JSON.stringify(unlocked));
+      saveProgress();
+      render();
+    }
+
+    function clearManualSave() {
+      localStorage.removeItem(MANUAL_SAVE_KEY);
+      localStorage.removeItem(PROGRESS_KEY);
+      cur = "start";
+      flags.trustPink = 0;
+      flags.trustOrange = 0;
+      flags.trustHuang = 0;
+      saveProgress();
+      alert("已清除当前进度存档");
+      render();
+    }
+
+    function renderUnlock() {
+      const unlock = document.getElementById("unlock");
+      unlock.innerHTML = "";
+      unlocked.forEach(e => {
+        const item = document.createElement("div");
+        item.className = "small";
+        item.innerText = `[${e.code}] ${e.cn} / ${e.en}`;
+        unlock.appendChild(item);
+      });
+    }
+
+    function getEndingExtra(s) {
+      let extra = "";
+
+      if (s.ending.code === "E12") {
+        if (flags.trustPink > 0) {
+          extra += `\n\n粉没有再往前走。\n这一次，她只是站在你旁边。`;
+        }
+        if (flags.trustOrange > 0) {
+          extra += `\n\n橙看了你一眼。\n这次他没再把话留一半。`;
+        }
+        if (flags.trustHuang > 0) {
+          extra += `\n\n黄愣了一下。\n但他还是跟了上来。`;
+        }
+        extra += `\n\n（这一次，你动了。）`;
+      }
+
+      if (s.ending.code === "E04" && flags.trustPink > 0) {
+        extra += `\n\n你忽然想起她之前看你的那一眼。`;
+      }
+
+      return extra;
+    }
+
+    function render() {
+      const s = story[cur];
+      const text = document.getElementById("text");
+      const choices = document.getElementById("choices");
+      const endingArea = document.getElementById("endingArea");
+
+      let displayText = s.text;
+      if (s.ending) {
+        displayText += getEndingExtra(s);
+      }
+
+      text.innerText = displayText;
+      choices.innerHTML = "";
+      endingArea.innerHTML = "";
+
+      saveProgress();
+
+      if (s.ending) {
+        saveEnding(s.ending);
+
+        const box = document.createElement("div");
+        box.className = "ending-box";
+        box.innerHTML = `
+          <div>【${s.ending.code}】${s.ending.cn}</div>
+          <div class="ending-en">${s.ending.en}</div>
+        `;
+        endingArea.appendChild(box);
+
+        const restart = document.createElement("button");
+        restart.innerText = "重新开始";
+        restart.onclick = () => {
+          cur = "start";
+          saveProgress();
+          render();
+        };
+        endingArea.appendChild(restart);
+
+        renderUnlock();
+        return;
+      }
+
+      if (s.choices) {
+        s.choices.forEach(x => {
+          const b = document.createElement("button");
+          b.innerText = x.label;
+          b.onclick = () => {
+            if (x.effect) x.effect();
+            cur = x.next;
+            saveProgress();
+            render();
+          };
+          choices.appendChild(b);
+        });
+      } else if (s.next) {
+        const b = document.createElement("button");
+        b.innerText = "继续";
+        b.onclick = () => {
+          cur = s.next;
+          saveProgress();
+          render();
+        };
+        choices.appendChild(b);
+      }
+
+      renderUnlock();
+    }
+
+    document.getElementById("saveBtn").onclick = manualSave;
+    document.getElementById("loadBtn").onclick = manualLoad;
+    document.getElementById("clearBtn").onclick = clearManualSave;
+
+    render();
+  </script>
+</body>
+</html>
