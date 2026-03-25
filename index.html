@@ -129,6 +129,8 @@
     let cur = progress.cur || "start";
 let glitchLevel = 0;
 let glitchTriggered = false;
+let pinkLoopCount = 0;
+   let orangeLoopCount = parseInt(localStorage.getItem("orange_loop") || "0"); 
     
     const story = {
       start: {
@@ -2061,7 +2063,8 @@ let glitchTriggered = false;
       const endingArea = document.getElementById("endingArea");
 
       let displayText = s.text;
-      if (glitchLevel >= 2) {
+
+if (glitchLevel >= 2) {
   displayText += "\n\n⚠ 记录校验异常";
 }
 
@@ -2072,16 +2075,68 @@ if (glitchLevel >= 4) {
 if (glitchLevel >= 6) {
   displayText += "\n\n⚠ 当前节点存在未授权偏移";
 }
-      if (s.ending) {
-        displayText += getEndingExtra(s);
-      }
+
+if (s.ending) {
+  displayText += getEndingExtra(s);
+}
+
+if (cur === "pink_check" && pinkLoopCount >= 2) {
+  displayText += "\n\n她这次看你的时间更久了。";
+}
+
+if (cur === "pink_check" && pinkLoopCount >= 3) {
+  displayText += "\n\n“……你不是第一次听到这句话了，对吧？”";
+}
+
+if (cur === "talk_pink" && pinkLoopCount >= 2) {
+  displayText += "\n\n她像是早就知道你会来找她。";
+}
+
+if (cur === "talk_pink" && pinkLoopCount >= 3) {
+  displayText += "\n\n“这次，你终于愿意认真听了？”";
+}
+     if (cur === "orange_probe" && orangeLoopCount >= 2) {
+  displayText += "\n\n他这次看你的眼神，比刚才更像是在确认什么。";
+}
+
+if (cur === "orange_probe" && orangeLoopCount >= 3) {
+  displayText += "\n\n“你终于开始问这个了。”";
+}
+
+if (cur === "orange_probe" && orangeLoopCount >= 5) {
+  displayText += "\n\n“这句开场，你上次反应得更慢。”";
+}
+
+if (cur === "orange_hint" && orangeLoopCount >= 2) {
+  displayText += "\n\n“你上一次没有听到这里。”";
+}
+
+if (cur === "orange_hint" && orangeLoopCount >= 3) {
+  displayText += "\n\n“别紧张，我只是比你更早接受了重复。”";
+}
+
+if (cur === "orange_hint" && orangeLoopCount >= 5) {
+  displayText += "\n\n“你以为我是从这一次才开始记得的吗？”";
+}
+
+if (cur === "orange_deep" && orangeLoopCount >= 2) {
+  displayText += "\n\n他停顿了一下，像是在翻找某一轮留下来的记录。";
+}
+
+if (cur === "orange_deep" && orangeLoopCount >= 4) {
+  displayText += "\n\n“你以为我是第一次带你走这条路吗？”";
+}
+
+if (cur === "orange_deep" && orangeLoopCount >= 6) {
+  displayText += "\n\n“误差越来越小了。”";
+} 
+
 if (glitchLevel >= 7) {
   displayText = displayText
     .replaceAll("你", "它")
     .replaceAll("他们", "你们")
     .replaceAll("出口", "记录口");
 }
-      
       text.innerText = displayText;
       choices.innerHTML = "";
       endingArea.innerHTML = "";
@@ -2116,13 +2171,15 @@ if (glitchLevel >= 7) {
   s.choices.forEach(x => {
     const b = document.createElement("button");
 
-    if (glitchLevel >= 6) {
-      b.innerText = "……";
-    } else if (cur === "start_after_loop") {
-      b.innerText = "继续";
-    } else {
-      b.innerText = x.label;
-    }
+    const glitchNodes = ["start_after_loop", "loop_start"];
+
+if (glitchLevel >= 6 && glitchNodes.includes(cur)) {
+  b.innerText = "……";
+} else if (cur === "start_after_loop") {
+  b.innerText = "继续";
+} else {
+  b.innerText = x.label;
+}
 
     b.onclick = () => {
       if (glitchLevel >= 5 && Math.random() < 0.18) {
@@ -2134,7 +2191,19 @@ if (glitchLevel >= 7) {
       if (cur === "start_after_loop") {
         glitchLevel++;
       }
+      if (x.next === "pink_check" || x.next === "talk_pink") {
+  pinkLoopCount++;
+  localStorage.setItem("pink_loop", pinkLoopCount);
+}
 
+if (x.next === "orange_probe" || x.next === "orange_hint" || x.next === "orange_deep") {
+  orangeLoopCount++;
+  localStorage.setItem("orange_loop", orangeLoopCount);
+}
+if (x.next === "pink_check" || x.next === "talk_pink") {
+  pinkLoopCount++;
+}
+      
       if (x.effect) x.effect();
       cur = x.next;
       saveProgress();
