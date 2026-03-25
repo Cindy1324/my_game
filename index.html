@@ -2224,7 +2224,11 @@ if (pinkNodes.includes(cur) || orangeNodes.includes(cur)) {
   b.innerText = "继续";
 
 } else {
-  b.innerText = x.label;
+  if (glitchLevel >= 3 && Math.random() < 0.45) {
+    b.innerText = x.label.slice(0, 2) + "...";
+  } else {
+    b.innerText = x.label;
+  }
 }
     b.onclick = () => {
       if (glitchLevel >= 5 && Math.random() < 0.18) {
