@@ -127,7 +127,9 @@
     };
 
     let cur = progress.cur || "start";
-
+let glitchLevel = 0;
+let glitchTriggered = false;
+    
     const story = {
       start: {
         text:
@@ -2059,10 +2061,27 @@
       const endingArea = document.getElementById("endingArea");
 
       let displayText = s.text;
+      if (glitchLevel >= 2) {
+  displayText += "\n\n⚠ 记录校验异常";
+}
+
+if (glitchLevel >= 4) {
+  displayText += "\n\n⚠ 检测到重复操作";
+}
+
+if (glitchLevel >= 6) {
+  displayText += "\n\n⚠ 当前节点存在未授权偏移";
+}
       if (s.ending) {
         displayText += getEndingExtra(s);
       }
-
+if (glitchLevel >= 7) {
+  displayText = displayText
+    .replaceAll("你", "它")
+    .replaceAll("他们", "你们")
+    .replaceAll("出口", "记录口");
+}
+      
       text.innerText = displayText;
       choices.innerHTML = "";
       endingArea.innerHTML = "";
@@ -2096,17 +2115,28 @@
       if (s.choices) {
         s.choices.forEach(x => {
           const b = document.createElement("button");
-          if (cur === "start_after_loop") {
+          if (glitchLevel >= 6) {
+  b.innerText = "……";
+} else if (cur === "start_after_loop") {
   b.innerText = "继续";
 } else {
   b.innerText = x.label;
 }
-          b.onclick = () => {
-            if (x.effect) x.effect();
-            cur = x.next;
-            saveProgress();
-            render();
-          };
+}b.onclick = () => {
+            if (glitchLevel >= 5 && Math.random() < 0.18) {
+  const text = document.getElementById("text");
+  text.innerText += "\n\n……刚刚那一下，没有被记录。";
+  return;
+}
+  if (cur === "start_after_loop") {
+    glitchLevel++;
+  }
+
+  if (x.effect) x.effect();
+  cur = x.next;
+  saveProgress();
+  render();
+};
           choices.appendChild(b);
         });
       } else if (s.next) {
@@ -2119,7 +2149,13 @@
         };
         choices.appendChild(b);
       }
-
+if (glitchLevel >= 8 && Math.random() < 0.12) {
+  choices.innerHTML = "";
+  const fake = document.createElement("button");
+  fake.innerText = "……加载中";
+  fake.disabled = true;
+  choices.appendChild(fake);
+}
       renderUnlock();
     }
 
@@ -2127,6 +2163,11 @@
     document.getElementById("loadBtn").onclick = manualLoad;
     document.getElementById("clearBtn").onclick = clearManualSave;
 
+ document.body.ondblclick = () => {
+  glitchLevel = 0;
+  glitchTriggered = false;
+  render();
+};   
     render();
   </script>
 </body>
