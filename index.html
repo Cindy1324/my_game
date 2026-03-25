@@ -2144,6 +2144,16 @@ if (glitchLevel >= 7) {
       choices.innerHTML = "";
       endingArea.innerHTML = "";
 
+      // ——轻度系统干扰——
+if (glitchLevel >= 4 && Math.random() < 0.25) {
+  const hint = document.createElement("div");
+  hint.innerText = "⚠ 系统校验中…";
+  hint.style.opacity = "0.5";
+  hint.style.fontSize = "12px";
+  hint.style.marginTop = "10px";
+  text.appendChild(hint);
+}
+
       saveProgress();
 
       if (s.ending) {
