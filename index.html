@@ -2216,12 +2216,19 @@ if (pinkNodes.includes(cur) || orangeNodes.includes(cur)) {
 
 } else if (glitchNodes.includes(cur) && glitchLevel >= 6) {
   b.innerText = "……";
-
 } else if (glitchNodes.includes(cur) && glitchLevel >= 4) {
-  b.innerText = "继...";
-
+  if (Math.random() < 0.5) {
+    b.innerText = "继...";
+  } else {
+    b.innerText = "继续";
+  }
 } else if (glitchNodes.includes(cur) && glitchLevel >= 2) {
-  b.innerText = "继续";
+  if (Math.random() < 0.4) {
+    b.innerText = "继...";
+  } else {
+    b.innerText = "继续";
+  }
+}
 
 } else {
   if (glitchLevel >= 3 && Math.random() < 0.45) {
