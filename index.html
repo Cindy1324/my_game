@@ -1931,7 +1931,7 @@ let pinkLoopCount = 0;
 
 这一次。
 
-你终于想起来了。。
+你终于想起来了。
 
 你现在走的这条路。
 
@@ -1941,7 +1941,7 @@ let pinkLoopCount = 0;
 
       ending_E26: {
         text:
-`你停在那竖充满诱惑的光前面。
+`你停在那束充满诱惑的光前面。
 
 没有出去。
 
@@ -1953,7 +1953,9 @@ let pinkLoopCount = 0;
 
 异变突生。
 
-连“前面有光”这件事都开始变得不稳定。
+周围开始震动！
+
+连“前面有光”这件事都开始变得不稳定起来。
 
 四周一点一点空下去。
 
@@ -2116,7 +2118,7 @@ if (cur === "orange_hint" && orangeLoopCount >= 3) {
 }
 
 if (cur === "orange_hint" && orangeLoopCount >= 5) {
-  displayText += "\n\n“你以为我是从这一次才开始记得的吗？”";
+  displayText += "\n\n“你是不是认为我是从这一次才开始记得的？”";
 }
 
 if (cur === "orange_deep" && orangeLoopCount >= 2) {
@@ -2124,13 +2126,14 @@ if (cur === "orange_deep" && orangeLoopCount >= 2) {
 }
 
 if (cur === "orange_deep" && orangeLoopCount >= 4) {
-  displayText += "\n\n“你以为我是第一次带你走这条路吗？”";
+  displayText += "\n\n“你认为我是第一次带你走这条路吗？”";
 }
 
 if (cur === "orange_deep" && orangeLoopCount >= 6) {
   displayText += "\n\n“误差越来越小了。”";
 } 
 
+      
 if (glitchLevel >= 7) {
   displayText = displayText
     .replaceAll("你", "它")
@@ -2175,8 +2178,7 @@ if (glitchLevel >= 7) {
 
 if (glitchLevel >= 6 && glitchNodes.includes(cur)) {
   b.innerText = "……";
-} else if (cur === "start_after_loop") {
-  b.innerText = "继续";
+} 
 } else {
   b.innerText = x.label;
 }
