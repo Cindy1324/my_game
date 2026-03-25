@@ -2263,7 +2263,7 @@ if (x.next === "pink_check" || x.next === "talk_pink") {
   });
 } else if (s.next) {
   const b = document.createElement("button");
-b.innerText = Math.random() < 0.5 ? "继续" : "继...";
+b.innerText = Math.random() < 0.5 ? "继续" : (Math.random() < 0.5 ? "继..." : "继续。");
   b.onclick = () => {
     cur = s.next;
     saveProgress();
