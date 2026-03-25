@@ -2286,18 +2286,10 @@ if (glitchLevel >= 8 && Math.random() < 0.12) {
     document.getElementById("clearBtn").onclick = clearManualSave;
 
  document.body.ondblclick = () => {
-  if (systemLock) {
-    unlockTapCount++;
-
-    if (unlockTapCount >= 2) {
-      systemLock = false;
-      unlockTapCount = 0;
-      systemMessage = "";
-      render();
-    } else {
-      systemMessage += "\n\n……恢复请求已记录。";
-      render();
-    }
+  glitchLevel = 0;
+  glitchTriggered = false;
+  render();
+};
 
     return;
   }
