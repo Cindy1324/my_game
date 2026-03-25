@@ -2212,7 +2212,11 @@ const orangeNodes = [
 const glitchNodes = ["start_after_loop", "loop_start"];
 
 if (pinkNodes.includes(cur) || orangeNodes.includes(cur)) {
+if (glitchLevel >= 5 && Math.random() < 0.3) {
+  b.innerText = x.label.slice(0, 2) + "...";
+} else {
   b.innerText = x.label;
+}
 } else if (glitchNodes.includes(cur) && glitchLevel >= 6) {
   b.innerText = "……";
 } else if (glitchNodes.includes(cur) && glitchLevel >= 2) {
