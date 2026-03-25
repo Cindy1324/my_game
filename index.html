@@ -2219,9 +2219,10 @@ if (glitchLevel >= 2) {
 }
 } else if (glitchNodes.includes(cur) && glitchLevel >= 6) {
   b.innerText = "……";
+} else if (glitchNodes.includes(cur) && glitchLevel >= 4) {
+  b.innerText = "继...";
 } else if (glitchNodes.includes(cur) && glitchLevel >= 2) {
   b.innerText = "继续";
-} else {
   b.innerText = x.label;
 }
 
