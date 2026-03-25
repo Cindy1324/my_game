@@ -2096,7 +2096,7 @@
       if (s.choices) {
         s.choices.forEach(x => {
           const b = document.createElement("button");
-          b.innerText = “继续”;
+          b.innerText = x.label;
           b.onclick = () => {
             if (x.effect) x.effect();
             cur = x.next;
