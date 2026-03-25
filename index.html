@@ -2064,6 +2064,9 @@ let pinkLoopCount = 0;
       const choices = document.getElementById("choices");
       const endingArea = document.getElementById("endingArea");
 
+      const systemOverlay = document.getElementById("systemOverlay");
+const systemOverlayText = document.getElementById("systemOverlayText");
+      
       let displayText = s.text;
 
 if (glitchLevel >= 2) {
@@ -2140,10 +2143,36 @@ if (glitchLevel >= 7) {
     .replaceAll("他们", "你们")
     .replaceAll("出口", "记录口");
 }
+
+if (!systemLock && glitchLevel >= 4 && Math.random() < 0.12) {
+  triggerSystemLock("⚠ 校验错误\n\n当前记录存在重复写入。\n\n请停止当前操作。");
+}
+
+if (!systemLock && glitchLevel >= 6 && Math.random() < 0.10) {
+  triggerSystemLock("⚠ 节点偏移\n\n检测到未授权路径访问。\n\n正在回收当前界面……");
+}
+
+if (!systemLock && glitchLevel >= 8 && Math.random() < 0.08) {
+  triggerSystemLock("⚠ 显示层异常\n\n渲染已被挂起。\n\n双击屏幕以尝试恢复。");
+}
+      
       text.innerText = displayText;
       choices.innerHTML = "";
       endingArea.innerHTML = "";
 
+systemOverlay.style.display = "none";
+systemOverlayText.innerText = "";
+
+if (systemLock) {
+  text.innerText = "";
+  choices.innerHTML = "";
+  endingArea.innerHTML = "";
+  systemOverlay.style.display = "block";
+  systemOverlayText.innerText = systemMessage;
+  renderUnlock();
+  return;
+}
+      
       saveProgress();
 
       if (s.ending) {
