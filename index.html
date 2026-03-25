@@ -2230,33 +2230,32 @@ if (pinkNodes.includes(cur) || orangeNodes.includes(cur)) {
     b.innerText = x.label;
   }
 }
-    b.onclick = () => {if (glitchLevel >= 2 && Math.random() < 0.8) {
-        const text = document.getElementById("text");
-        text.innerText += "\n\n……刚刚那一下，没有被记录。";
-        return;
-      }
+  
+b.onclick = () => {
+  if (glitchLevel >= 2 && Math.random() < 0.18) {
+    const text = document.getElementById("text");
+    text.innerText += "\n\n……刚刚那一下，没有被记录。";
+    return;
+  }
 
-      if (cur === "start_after_loop") {
-        glitchLevel++;
-      }
-      if (x.next === "pink_check" || x.next === "talk_pink") {
-  pinkLoopCount++;
-  localStorage.setItem("pink_loop", pinkLoopCount);
-}
+  if (cur === "start_after_loop") {
+    glitchLevel++;
+  }
 
-if (x.next === "orange_probe" || x.next === "orange_hint" || x.next === "orange_deep") {
-  orangeLoopCount++;
-  localStorage.setItem("orange_loop", orangeLoopCount);
-}
-if (x.next === "pink_check" || x.next === "talk_pink") {
-  pinkLoopCount++;
-}
-      
-      if (x.effect) x.effect();
-      cur = x.next;
-      saveProgress();
-      render();
-    };
+  if (x.next === "pink_check" || x.next === "talk_pink") {
+    pinkLoopCount++;
+    localStorage.setItem("pink_loop", pinkLoopCount);
+  }
+
+  if (x.next === "orange_probe" || x.next === "orange_hint") {
+    orangeLoopCount++;
+    localStorage.setItem("orange_loop", orangeLoopCount);
+  }
+
+  cur = x.next;
+  saveProgress();
+  render();
+};
 
     choices.appendChild(b);
   });
