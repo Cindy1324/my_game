@@ -2113,42 +2113,46 @@ if (glitchLevel >= 7) {
       }
 
       if (s.choices) {
-        s.choices.forEach(x => {
-          const b = document.createElement("button");
-          if (glitchLevel >= 6) {
-  b.innerText = "……";
-} else if (cur === "start_after_loop") {
-  b.innerText = "继续";
-} else {
-  b.innerText = x.label;
-}
-}b.onclick = () => {
-            if (glitchLevel >= 5 && Math.random() < 0.18) {
-  const text = document.getElementById("text");
-  text.innerText += "\n\n……刚刚那一下，没有被记录。";
-  return;
-}
-  if (cur === "start_after_loop") {
-    glitchLevel++;
-  }
+  s.choices.forEach(x => {
+    const b = document.createElement("button");
 
-  if (x.effect) x.effect();
-  cur = x.next;
-  saveProgress();
-  render();
-};
-          choices.appendChild(b);
-        });
-      } else if (s.next) {
-        const b = document.createElement("button");
-        b.innerText = "继续";
-        b.onclick = () => {
-          cur = s.next;
-          saveProgress();
-          render();
-        };
-        choices.appendChild(b);
+    if (glitchLevel >= 6) {
+      b.innerText = "……";
+    } else if (cur === "start_after_loop") {
+      b.innerText = "继续";
+    } else {
+      b.innerText = x.label;
+    }
+
+    b.onclick = () => {
+      if (glitchLevel >= 5 && Math.random() < 0.18) {
+        const text = document.getElementById("text");
+        text.innerText += "\n\n……刚刚那一下，没有被记录。";
+        return;
       }
+
+      if (cur === "start_after_loop") {
+        glitchLevel++;
+      }
+
+      if (x.effect) x.effect();
+      cur = x.next;
+      saveProgress();
+      render();
+    };
+
+    choices.appendChild(b);
+  });
+} else if (s.next) {
+  const b = document.createElement("button");
+  b.innerText = "继续";
+  b.onclick = () => {
+    cur = s.next;
+    saveProgress();
+    render();
+  };
+  choices.appendChild(b);
+}
 if (glitchLevel >= 8 && Math.random() < 0.12) {
   choices.innerHTML = "";
   const fake = document.createElement("button");
@@ -2156,6 +2160,7 @@ if (glitchLevel >= 8 && Math.random() < 0.12) {
   fake.disabled = true;
   choices.appendChild(fake);
 }
+      
       renderUnlock();
     }
 
