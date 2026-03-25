@@ -2230,8 +2230,7 @@ if (pinkNodes.includes(cur) || orangeNodes.includes(cur)) {
     b.innerText = x.label;
   }
 }
-    b.onclick = () => {
-      if (glitchLevel >= 5 && Math.random() < 0.18) {
+    b.onclick = () => {if (glitchLevel >= 2 && Math.random() < 0.8) {
         const text = document.getElementById("text");
         text.innerText += "\n\n……刚刚那一下，没有被记录。";
         return;
