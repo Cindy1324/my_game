@@ -2039,18 +2039,18 @@
     }
 
     function getEndingExtra(s) {
-      let extra = "";
+  let extra = "";
 
-      if (s.ending.code === "E12") 
-        extra += `\n\n（这一次，你动了。）`;
-      }
+  if (s.ending.code === "E12") {
+    extra += `\n\n（这一次，你动了。）`;
+  }
 
-      if (s.ending.code === "E04" && flags.trustPink > 0) {
-        extra += `\n\n你忽然想起她之前看你的那一眼。`;
-      }
+  if (s.ending.code === "E04" && flags.trustPink > 0) {
+    extra += `\n\n你忽然想起她之前看你的那一眼。`;
+  }
 
-      return extra;
-    }
+  return extra;
+}
 
     function render() {
       const s = story[cur];
