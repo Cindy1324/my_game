@@ -2174,11 +2174,39 @@ if (glitchLevel >= 7) {
   s.choices.forEach(x => {
     const b = document.createElement("button");
 
-    const glitchNodes = ["start_after_loop", "loop_start"];
+    const pinkNodes = [
+  "pink_check",
+  "talk_pink",
+  "pink_truth",
+  "pink_truth_alt",
+  "pink_follow",
+  "pink_stop",
+  "pink_lock",
+  "pink_room",
+  "pink_room_q1",
+  "pink_room_q2",
+  "pink_room_q3",
+  "pink_room_memory",
+  "pink_commit",
+  "pink_last_question",
+  "pink_break"
+];
 
-if (glitchLevel >= 6 && glitchNodes.includes(cur)) {
+const orangeNodes = [
+  "orange_probe",
+  "orange_hint",
+  "orange_deep",
+  "orange_safe_route"
+];
+
+const glitchNodes = ["start_after_loop", "loop_start"];
+
+if (pinkNodes.includes(cur) || orangeNodes.includes(cur)) {
+  b.innerText = x.label;
+} else if (glitchNodes.includes(cur) && glitchLevel >= 6) {
   b.innerText = "……";
-} 
+} else if (glitchNodes.includes(cur) && glitchLevel >= 2) {
+  b.innerText = "继续";
 } else {
   b.innerText = x.label;
 }
