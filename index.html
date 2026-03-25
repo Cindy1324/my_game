@@ -2064,8 +2064,6 @@ let pinkLoopCount = 0;
       const choices = document.getElementById("choices");
       const endingArea = document.getElementById("endingArea");
 
-      
-      
       let displayText = s.text;
 
 if (glitchLevel >= 2) {
@@ -2142,21 +2140,10 @@ if (glitchLevel >= 7) {
     .replaceAll("他们", "你们")
     .replaceAll("出口", "记录口");
 }
-
-
       text.innerText = displayText;
       choices.innerHTML = "";
       endingArea.innerHTML = "";
 
-systemOverlay.style.display = "none";
-systemOverlayText.innerText = "";
-
-if (systemLock) {
-  text.innerText = "";
-  choices.innerHTML = "";
-  endingArea.innerHTML = "";
-
-      
       saveProgress();
 
       if (s.ending) {
@@ -2259,11 +2246,6 @@ if (x.next === "pink_check" || x.next === "talk_pink") {
   const b = document.createElement("button");
   b.innerText = "继续";
   b.onclick = () => {
-
-    if (systemLock) {
-  return;
-}
-    
     cur = s.next;
     saveProgress();
     render();
@@ -2289,16 +2271,7 @@ if (glitchLevel >= 8 && Math.random() < 0.12) {
   glitchLevel = 0;
   glitchTriggered = false;
   render();
-};
-
-    return;
-  }
-
-  glitchLevel = 0;
-  glitchTriggered = false;
-  render();
-};
-  
+};   
     render();
   </script>
 </body>
